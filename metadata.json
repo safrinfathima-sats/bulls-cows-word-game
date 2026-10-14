@@ -1,0 +1,6 @@
+{
+  "name": "Bulls & Cows Word Game",
+  "description": "Interactive 4-letter deduction word game. Guess the secret isogram in 8 attempts with Bulls & Cows feedback.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
