@@ -6,8 +6,8 @@ import { VirtualKeyboard } from './components/VirtualKeyboard';
 import { DeductionPad } from './components/DeductionPad';
 import { RulesModal } from './components/RulesModal';
 import { StatsModal } from './components/StatsModal';
-import { BackendConnectModal } from './components/BackendConnectModal';
 import { GameEndModal } from './components/GameEndModal';
+import { MascotDuoBanner, MascotMood } from './components/Mascots';
 import {
   getRandomSecretWord,
   calculateBullsAndCows,
@@ -56,11 +56,23 @@ export default function App() {
   const [letterStates, setLetterStates] = useState<Record<string, LetterTrackerState>>({});
   const [quickNotes, setQuickNotes] = useState<string>('');
 
-  // UI Drawer / Modals State
-  const [isDeductionPadOpen, setIsDeductionPadOpen] = useState<boolean>(true);
+  // Animated Mascots State (Barnaby the Bull & Clara the Cow)
+  const [bullMood, setBullMood] = useState<MascotMood>('wave');
+  const [cowMood, setCowMood] = useState<MascotMood>('wave');
+  const [mascotSpeech, setMascotSpeech] = useState<string>(
+    'Welcome! Guess our secret 4-letter word. Barnaby tracks exact Bulls 🎯 and Clara tracks misplaced Cows 💡!'
+  );
+  const [showMascotSpeech, setShowMascotSpeech] = useState<boolean>(true);
+
+  // UI Drawer / Modals State (defaults to collapsed on mobile to prioritize board + keyboard)
+  const [isDeductionPadOpen, setIsDeductionPadOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024;
+    }
+    return true;
+  });
   const [rulesOpen, setRulesOpen] = useState<boolean>(false);
   const [statsOpen, setStatsOpen] = useState<boolean>(false);
-  const [backendOpen, setBackendOpen] = useState<boolean>(false);
   const [gameEndOpen, setGameEndOpen] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(() => soundController.isMuted());
 
@@ -158,6 +170,13 @@ export default function App() {
     setLetterStates({});
     setQuickNotes('');
     setGameEndOpen(false);
+    setBullMood('wave');
+    setCowMood('wave');
+    setMascotSpeech('New game! Guess our secret 4-letter word. Barnaby tracks exact Bulls & Clara tracks misplaced Cows!');
+    setTimeout(() => {
+      setBullMood('idle');
+      setCowMood('idle');
+    }, 2200);
   }, []);
 
   // Handle typing a character
@@ -177,6 +196,9 @@ export default function App() {
     if (currentInput.includes(upperChar)) {
       setDuplicateChar(upperChar);
       setInputError(`'${upperChar}' already entered! All 4 letters must be unique.`);
+      setBullMood('puzzled');
+      setMascotSpeech(`Heads up! All 4 letters must be unique. '${upperChar}' is already in your word!`);
+      setTimeout(() => setBullMood('idle'), 1600);
       soundController.playError();
       return;
     }
@@ -302,8 +324,13 @@ export default function App() {
       return next;
     });
 
-    // Check Win condition (4 Bulls)
+    // Mascot Reactions:
+    // Bull reacts playfully when correct letter is in correct position (Bull)
+    // Cow reacts playfully when correct letter is in wrong position (Cow)
     if (bulls === 4) {
+      setBullMood('celebrate');
+      setCowMood('celebrate');
+      setMascotSpeech('🎉 4 BULLS! Brilliant deduction! We cracked the secret word!');
       setGameStatus('won');
       soundController.playWin();
       triggerConfetti();
@@ -312,8 +339,33 @@ export default function App() {
       return;
     }
 
+    // Playful reaction to Bulls and Cows
+    const nextBull: MascotMood = bulls > 0 ? 'react' : 'idle';
+    const nextCow: MascotMood = cows > 0 ? 'react' : 'idle';
+    setBullMood(nextBull);
+    setCowMood(nextCow);
+
+    if (bulls > 0 && cows > 0) {
+      setMascotSpeech(`Great progress! 🎯 ${bulls} Bull${bulls > 1 ? 's' : ''} in the right spot & 💡 ${cows} Cow${cows > 1 ? 's' : ''} misplaced!`);
+    } else if (bulls > 0) {
+      setMascotSpeech(`Barnaby cheered! 🎯 ${bulls} Bull${bulls > 1 ? 's' : ''} locked into the exact position!`);
+    } else if (cows > 0) {
+      setMascotSpeech(`Clara jingled her bell! 💡 ${cows} Cow${cows > 1 ? 's' : ''} in the word, but in different slots!`);
+    } else {
+      setMascotSpeech(`0 Bulls & 0 Cows! You just eliminated all 4 letters from your suspect list! 🔍`);
+    }
+
+    // Auto-settle mascots back to calm idle after 1.8 seconds so animations are brief
+    setTimeout(() => {
+      setBullMood((prev) => (prev === 'celebrate' ? 'celebrate' : 'idle'));
+      setCowMood((prev) => (prev === 'celebrate' ? 'celebrate' : 'idle'));
+    }, 1800);
+
     // Check Loss condition (reached max 8 attempts)
     if (newGuesses.length >= MAX_GUESSES) {
+      setBullMood('puzzled');
+      setCowMood('puzzled');
+      setMascotSpeech(`Aww, out of guesses! The secret word was "${secretWord}". Ready for a rematch?`);
       setGameStatus('lost');
       soundController.playLoss();
       recordGameResult(false, newGuesses.length);
@@ -345,7 +397,6 @@ export default function App() {
       } else if (e.key === 'Escape') {
         setRulesOpen(false);
         setStatsOpen(false);
-        setBackendOpen(false);
         setGameEndOpen(false);
       } else if (/^[a-zA-Z]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
@@ -397,25 +448,41 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500/30 selection:text-amber-200">
+    <div className="min-h-screen bg-[#FFF8EC] text-[#30264A] flex flex-col font-sans selection:bg-[#FFD166] selection:text-[#30264A]">
       {/* Top Bar Header */}
       <Header
         onOpenRules={() => setRulesOpen(true)}
         onOpenStats={() => setStatsOpen(true)}
-        onOpenBackend={() => setBackendOpen(true)}
         onToggleDeductionPad={() => setIsDeductionPadOpen((prev) => !prev)}
         isDeductionPadOpen={isDeductionPadOpen}
         onNewGame={handleNewGame}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
-        isBackendActive={backendConfig.enabled}
       />
 
       {/* Main Container */}
-      <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-4 sm:py-6 flex flex-col justify-between">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-6 flex flex-col justify-between">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
           {/* Main Game Play Column */}
-          <div className={`${isDeductionPadOpen ? 'lg:col-span-7' : 'lg:col-span-12 max-w-xl mx-auto'} w-full space-y-4`}>
+          <div className={`${isDeductionPadOpen ? 'lg:col-span-7' : 'lg:col-span-12 max-w-xl mx-auto'} w-full space-y-3`}>
+            {/* Mascot Welcome & Live Reaction Banner */}
+            <MascotDuoBanner
+              bullMood={bullMood}
+              cowMood={cowMood}
+              speechText={showMascotSpeech ? mascotSpeech : undefined}
+              onDismissSpeech={() => setShowMascotSpeech(false)}
+              onTapMascot={() => {
+                setShowMascotSpeech(true);
+                setBullMood('wave');
+                setCowMood('wave');
+                setTimeout(() => {
+                  setBullMood('idle');
+                  setCowMood('idle');
+                }, 1500);
+              }}
+              compact={guesses.length > 0}
+            />
+
             {/* Active Game Board */}
             <GameBoard
               guesses={guesses}
@@ -424,10 +491,11 @@ export default function App() {
               gameStatus={gameStatus}
               inputError={inputError}
               duplicateChar={duplicateChar}
+              onOpenRules={() => setRulesOpen(true)}
             />
 
             {/* Virtual Keyboard */}
-            <div className="pt-2">
+            <div className="pt-1">
               <VirtualKeyboard
                 onKeyPress={handleCharInput}
                 onEnter={handleSubmit}
@@ -436,6 +504,23 @@ export default function App() {
                 disabled={gameStatus !== 'playing'}
               />
             </div>
+
+            {/* Mobile quick-open bar for Scratchpad when collapsed */}
+            {!isDeductionPadOpen && (
+              <div className="flex justify-center pt-1 lg:hidden">
+                <button
+                  type="button"
+                  onClick={() => setIsDeductionPadOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl bg-white hover:bg-[#F2EEFF] text-[#7047EB] border-2 border-[#E7DFFF] transition-all shadow-xs"
+                  aria-label="Open Detective Scratchpad"
+                >
+                  <span>🕵️ Open Detective Scratchpad</span>
+                  <span className="text-[10px] bg-[#F2EEFF] text-[#7047EB] px-2 py-0.5 rounded-full font-mono font-bold">
+                    {Object.values(letterStates).filter((s) => s === 'eliminated').length} eliminated
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Interactive Deduction / Detective Scratchpad Column */}
@@ -448,20 +533,22 @@ export default function App() {
                 onAutoDeduce={handleAutoDeduce}
                 quickNotes={quickNotes}
                 onQuickNotesChange={setQuickNotes}
+                isCollapsed={false}
+                onToggleCollapse={() => setIsDeductionPadOpen(false)}
               />
 
-              {/* Guesses Log summary widget */}
-              <div className="p-4 rounded-2xl border border-slate-800/80 bg-slate-900/40">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              {/* Guesses Log summary widget in Pure White Card */}
+              <div className="p-3.5 sm:p-4 rounded-2xl border-2 border-[#E7DFFF] bg-white shadow-md shadow-[#7047EB]/5">
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-[#30264A]">
                     Live Deduction Log
                   </span>
-                  <span className="text-xs text-slate-500 font-mono">
+                  <span className="text-xs text-[#746B85] font-mono font-semibold">
                     {guesses.length} of {MAX_GUESSES} used
                   </span>
                 </div>
                 {guesses.length === 0 ? (
-                  <p className="text-xs text-slate-500 italic py-2">
+                  <p className="text-xs text-[#746B85] italic py-1.5">
                     No guesses yet. Enter your first 4-letter word above or use your physical keyboard.
                   </p>
                 ) : (
@@ -469,15 +556,19 @@ export default function App() {
                     {guesses.map((g, idx) => (
                       <div
                         key={g.id}
-                        className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-950/70 border border-slate-800"
+                        className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-[#FFF8EC] border border-[#E7DFFF]"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-slate-500 w-4">{idx + 1}.</span>
-                          <span className="font-bold tracking-widest text-white">{g.word}</span>
+                          <span className="text-[#746B85] font-bold w-4">{idx + 1}.</span>
+                          <span className="font-extrabold tracking-widest text-[#30264A]">{g.word}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-emerald-400 font-semibold">🐂 {g.bulls}</span>
-                          <span className="text-amber-400 font-semibold">🐄 {g.cows}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[#FF6B6B] bg-[#FFEBEB] font-bold px-2 py-0.5 rounded-md border border-[#FF6B6B]/30">
+                            🐂 {g.bulls}B
+                          </span>
+                          <span className="text-[#20ABA5] bg-[#E8F9F8] font-bold px-2 py-0.5 rounded-md border border-[#28C7C0]/40">
+                            🐄 {g.cows}C
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -489,8 +580,8 @@ export default function App() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full border-t border-slate-800/60 py-3 text-center text-xs text-slate-500">
+      {/* Footer in Warm Cream with Lavender Border */}
+      <footer className="w-full border-t border-[#E7DFFF] bg-[#FFF8EC] py-3 text-center text-xs text-[#746B85]">
         <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
             Bulls & Cows 4-Letter Word Deductive Puzzle · Final Year Project Edition
@@ -498,16 +589,9 @@ export default function App() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setRulesOpen(true)}
-              className="hover:text-slate-300 transition-colors"
+              className="text-[#7047EB] hover:underline font-bold transition-colors"
             >
               Game Rules
-            </button>
-            <span>·</span>
-            <button
-              onClick={() => setBackendOpen(true)}
-              className="hover:text-slate-300 transition-colors"
-            >
-              Backend API
             </button>
           </div>
         </div>
@@ -520,12 +604,6 @@ export default function App() {
         onClose={() => setStatsOpen(false)}
         stats={stats}
         onResetStats={() => setStats(INITIAL_STATS)}
-      />
-      <BackendConnectModal
-        isOpen={backendOpen}
-        onClose={() => setBackendOpen(false)}
-        config={backendConfig}
-        onSaveConfig={setBackendConfig}
       />
       <GameEndModal
         isOpen={gameEndOpen}

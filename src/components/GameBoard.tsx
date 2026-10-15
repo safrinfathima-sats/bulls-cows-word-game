@@ -1,5 +1,6 @@
 import React from 'react';
 import { GuessRecord } from '../types/game';
+import { CornerDownLeft } from 'lucide-react';
 
 interface GameBoardProps {
   guesses: GuessRecord[];
@@ -8,6 +9,7 @@ interface GameBoardProps {
   gameStatus: 'playing' | 'won' | 'lost';
   inputError: string | null;
   duplicateChar: string | null;
+  onOpenRules?: () => void;
 }
 
 export const GameBoard: React.FC<GameBoardProps> = ({
@@ -21,26 +23,31 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   const currentAttempt = guesses.length;
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* Visual Instruction Banner */}
-      <div className="mb-4 flex items-center justify-between text-xs text-slate-400 px-1 border-b border-slate-800/60 pb-2">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
-            <strong className="text-emerald-300 font-semibold">Bulls:</strong> Correct letter & spot
+    <div className="w-full max-w-md mx-auto rounded-2xl bg-white border-2 border-[#E7DFFF] p-3 sm:p-4 shadow-md shadow-[#7047EB]/5">
+      {/* Persistent Compact HUD & Legend */}
+      <div className="mb-3 flex items-center justify-between text-xs text-[#746B85] px-1 border-b border-[#E7DFFF] pb-2.5">
+        <div className="flex items-center gap-2.5 sm:gap-3 text-[11px] sm:text-xs">
+          <span className="flex items-center gap-1.5" title="Letter is in the word AND in the exact same position">
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#FF6B6B] shadow-xs"></span>
+            <strong className="text-[#FF6B6B] font-bold">Bulls:</strong>
+            <span className="text-[#746B85] hidden xs:inline">Exact spot</span>
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span>
-            <strong className="text-amber-300 font-semibold">Cows:</strong> In word, wrong spot
+          <span className="flex items-center gap-1.5" title="Letter is in the word, but in a different position">
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#28C7C0] shadow-xs"></span>
+            <strong className="text-[#20ABA5] font-bold">Cows:</strong>
+            <span className="text-[#746B85] hidden xs:inline">Wrong spot</span>
           </span>
         </div>
-        <span className="font-mono tabular-nums text-slate-400">
-          {Math.min(currentAttempt + (gameStatus === 'playing' ? 1 : 0), maxGuesses)} / {maxGuesses}
-        </span>
+        <div className="flex items-center gap-1.5 font-mono text-xs tabular-nums text-[#746B85]">
+          <span>Attempt</span>
+          <strong className="text-[#7047EB] bg-[#F2EEFF] px-2 py-0.5 rounded-md font-bold">
+            {Math.min(currentAttempt + (gameStatus === 'playing' ? 1 : 0), maxGuesses)} / {maxGuesses}
+          </strong>
+        </div>
       </div>
 
-      {/* Rows Container */}
-      <div className="space-y-2">
+      {/* Rows Container (Exactly 8 Guesses) */}
+      <div className="space-y-1.5 sm:space-y-2">
         {Array.from({ length: maxGuesses }).map((_, rowIndex) => {
           const isPastRow = rowIndex < guesses.length;
           const isCurrentRow = rowIndex === guesses.length && gameStatus === 'playing';
@@ -49,51 +56,55 @@ export const GameBoard: React.FC<GameBoardProps> = ({
           return (
             <div
               key={rowIndex}
-              className={`flex items-center justify-between gap-2 p-1.5 rounded-xl border transition-all duration-200 ${
+              className={`flex items-center justify-between gap-1.5 sm:gap-2 px-2 py-1.5 rounded-xl border transition-all duration-200 ${
                 isCurrentRow
-                  ? 'border-emerald-500/40 bg-slate-900/60 shadow-lg shadow-emerald-950/20'
+                  ? 'border-2 border-[#7047EB] bg-[#F2EEFF] shadow-sm ring-2 ring-[#7047EB]/20'
                   : isPastRow
-                  ? 'border-slate-800/80 bg-slate-900/30'
-                  : 'border-slate-800/30 bg-slate-950/20 opacity-50'
+                  ? 'border border-[#E7DFFF] bg-white hover:border-[#7047EB]/30'
+                  : 'border border-[#E7DFFF]/60 bg-[#FFF8EC]/40 opacity-50'
               }`}
             >
               {/* Row index indicator */}
-              <div className="w-6 text-center font-mono text-xs text-slate-500 tabular-nums">
+              <div
+                className={`w-5 sm:w-6 text-center font-mono text-xs font-bold tabular-nums shrink-0 ${
+                  isCurrentRow ? 'text-[#7047EB]' : 'text-[#746B85]'
+                }`}
+              >
                 {rowIndex + 1}
               </div>
 
               {/* 4 Letter Tiles */}
-              <div className="flex items-center gap-2 flex-1 justify-center">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center">
                 {Array.from({ length: 4 }).map((_, letterIndex) => {
                   let char = '';
                   let isDuplicate = false;
-                  let tileBorder = 'border-slate-800 bg-slate-900/40 text-slate-500';
+                  let tileStyle = 'border-2 border-[#E7DFFF] bg-white text-[#746B85]';
 
                   if (isPastRow && guessData) {
                     char = guessData.word[letterIndex] || '';
-                    tileBorder = 'border-slate-700 bg-slate-800/90 text-white font-bold shadow-sm';
+                    tileStyle = 'border-2 border-[#7047EB]/40 bg-white text-[#30264A] font-extrabold shadow-xs';
                   } else if (isCurrentRow) {
                     char = currentInput[letterIndex] || '';
                     if (char && char === duplicateChar) {
                       isDuplicate = true;
                     }
                     if (char) {
-                      tileBorder = isDuplicate
-                        ? 'border-rose-500 bg-rose-950/40 text-rose-200 animate-shake shadow-sm shadow-rose-950/50'
-                        : 'border-slate-600 bg-slate-800 text-white animate-pop shadow-sm';
+                      tileStyle = isDuplicate
+                        ? 'border-2 border-[#FF6B6B] bg-[#FFEBEB] text-[#FF6B6B] animate-shake shadow-xs ring-2 ring-[#FF6B6B]/40'
+                        : 'border-2 border-[#7047EB] bg-white text-[#30264A] animate-pop shadow-xs font-extrabold';
                     } else if (letterIndex === currentInput.length) {
-                      tileBorder = 'border-emerald-500/60 bg-slate-900/80 ring-1 ring-emerald-500/30 text-white';
+                      tileStyle = 'border-2 border-[#7047EB] bg-white ring-2 ring-[#7047EB]/30 text-[#7047EB]';
                     }
                   }
 
                   return (
                     <div
                       key={letterIndex}
-                      className={`relative flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-lg border text-lg sm:text-xl font-mono uppercase tracking-wider font-extrabold transition-all duration-150 ${tileBorder}`}
+                      className={`relative flex h-10 w-10 sm:h-12 sm:w-12 min-w-[36px] items-center justify-center rounded-xl border-2 text-base sm:text-xl font-mono uppercase tracking-wider font-extrabold transition-all duration-150 select-none ${tileStyle}`}
                     >
                       {char}
                       {isCurrentRow && letterIndex === currentInput.length && (
-                        <span className="absolute bottom-1 w-2.5 h-0.5 bg-emerald-400 animate-pulse rounded-full" />
+                        <span className="absolute bottom-1 w-2.5 h-0.5 bg-[#7047EB] animate-pulse rounded-full" />
                       )}
                     </div>
                   );
@@ -101,45 +112,52 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               </div>
 
               {/* Bulls and Cows Result Indicator */}
-              <div className="w-24 sm:w-28 flex items-center justify-end gap-1.5 sm:gap-2 pr-1 font-mono text-xs">
+              <div className="w-24 sm:w-28 flex items-center justify-end gap-1.5 sm:gap-2 font-mono text-xs shrink-0">
                 {isPastRow && guessData ? (
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    {/* Bulls badge */}
+                  <div className="flex items-center gap-1 sm:gap-1.5">
+                    {/* Bulls badge in Coral Red */}
                     <div
-                      className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold tabular-nums border ${
+                      className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold tabular-nums border ${
                         guessData.bulls > 0
-                          ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300 shadow-sm shadow-emerald-950/50'
-                          : 'bg-slate-900/60 border-slate-800 text-slate-500'
+                          ? 'bg-[#FFEBEB] border-[#FF6B6B] text-[#FF6B6B] shadow-xs'
+                          : 'bg-[#F2EEFF]/60 border-[#E7DFFF] text-[#746B85]'
                       }`}
                       title={`${guessData.bulls} Bull${guessData.bulls === 1 ? '' : 's'} (correct position)`}
+                      aria-label={`${guessData.bulls} Bulls`}
                     >
                       <span className="text-xs" role="img" aria-label="Bulls">🐂</span>
                       <span>{guessData.bulls}B</span>
                     </div>
 
-                    {/* Cows badge */}
+                    {/* Cows badge in Turquoise */}
                     <div
-                      className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold tabular-nums border ${
+                      className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold tabular-nums border ${
                         guessData.cows > 0
-                          ? 'bg-amber-950/80 border-amber-500/50 text-amber-300 shadow-sm shadow-amber-950/50'
-                          : 'bg-slate-900/60 border-slate-800 text-slate-500'
+                          ? 'bg-[#E8F9F8] border-[#28C7C0] text-[#20ABA5] shadow-xs'
+                          : 'bg-[#F2EEFF]/60 border-[#E7DFFF] text-[#746B85]'
                       }`}
                       title={`${guessData.cows} Cow${guessData.cows === 1 ? '' : 's'} (wrong position)`}
+                      aria-label={`${guessData.cows} Cows`}
                     >
                       <span className="text-xs" role="img" aria-label="Cows">🐄</span>
                       <span>{guessData.cows}C</span>
                     </div>
                   </div>
                 ) : isCurrentRow ? (
-                  <div className="text-[11px] text-slate-400 font-sans text-right">
+                  <div className="text-[11px] sm:text-xs font-sans text-right">
                     {currentInput.length === 4 ? (
-                      <span className="text-emerald-400 font-semibold animate-pulse">Press ENTER</span>
+                      <span className="inline-flex items-center gap-1 text-[#7047EB] font-extrabold animate-pulse bg-[#F2EEFF] px-2 py-1 rounded-lg border border-[#7047EB]/40 shadow-xs">
+                        <span>ENTER</span>
+                        <CornerDownLeft className="h-3 w-3" />
+                      </span>
                     ) : (
-                      <span>{4 - currentInput.length} left</span>
+                      <span className="text-[#746B85] font-medium">
+                        {4 - currentInput.length} left
+                      </span>
                     )}
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 text-slate-700">
+                  <div className="flex items-center justify-center w-full text-[#E7DFFF]">
                     <span>—</span>
                   </div>
                 )}
@@ -149,10 +167,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         })}
       </div>
 
-      {/* Real-time input validation error banner */}
+      {/* Real-time input validation error banner in Coral Red */}
       {inputError && (
-        <div className="mt-3 flex items-center justify-center gap-2 p-2 rounded-lg bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs sm:text-sm animate-shake shadow-md">
-          <span className="text-rose-400">⚠️</span>
+        <div className="mt-3 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[#FFEBEB] border-2 border-[#FF6B6B] text-[#C93B3B] text-xs sm:text-sm animate-shake shadow-xs text-center font-semibold">
+          <span className="text-sm">⚠️</span>
           <span>{inputError}</span>
         </div>
       )}

@@ -3,6 +3,22 @@
 @layer base {
   :root {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --bg-page: #FFF8EC;
+    --card-bg: #FFFFFF;
+    --primary-purple: #7047EB;
+    --turquoise: #28C7C0;
+    --yellow: #FFD166;
+    --coral-red: #FF6B6B;
+    --green-success: #36B56A;
+    --text-main: #30264A;
+    --text-muted: #746B85;
+    --border-lavender: #E7DFFF;
+  }
+
+  body {
+    background-color: #FFF8EC;
+    color: #30264A;
+    margin: 0;
   }
 }
 
@@ -41,12 +57,21 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #FFF8EC;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: #E7DFFF;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.4);
+  background: #746B85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

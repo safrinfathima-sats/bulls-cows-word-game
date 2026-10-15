@@ -68,7 +68,6 @@ export const BackendConnectModal: React.FC<BackendConnectModalProps> = ({
   const sampleFlask = `# Python Flask Backend (app.py)
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import random
 
 app = Flask(__name__)
 CORS(app) # Enable CORS for frontend
@@ -155,38 +154,38 @@ app.listen(5000, () => console.log('Server on port 5000'));`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-xl rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl text-slate-100 max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#30264A]/50 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-xl rounded-3xl border-2 border-[#E7DFFF] bg-white p-5 sm:p-6 shadow-2xl text-[#30264A] max-h-[92vh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-xl text-[#746B85] hover:text-[#30264A] hover:bg-[#F2EEFF] transition-colors focus-visible:ring-2 focus-visible:ring-[#7047EB] focus:outline-none"
           aria-label="Close"
         >
           <X className="h-5 w-5" />
         </button>
 
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="p-2.5 rounded-2xl bg-[#E8F9F8] text-[#20ABA5] border-2 border-[#28C7C0]/40">
             <Server className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold tracking-tight text-white">
+            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#7047EB]">
               Backend Integration Settings
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#746B85] font-medium">
               Seamlessly link your final year project backend API with this frontend.
             </p>
           </div>
         </div>
 
-        {/* Mode Switch */}
-        <div className="mt-4 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+        {/* Mode Switch Card in Warm Cream */}
+        <div className="mt-4 p-4 rounded-2xl bg-[#FFF8EC] border-2 border-[#E7DFFF]">
           <label className="flex items-center justify-between cursor-pointer">
             <div>
-              <span className="text-sm font-semibold text-white block">
+              <span className="text-sm font-bold text-[#30264A] block">
                 Connect External Backend API
               </span>
-              <span className="text-xs text-slate-400 block mt-0.5">
+              <span className="text-xs text-[#746B85] block mt-0.5 font-medium">
                 {enabled
                   ? 'Active: Guesses will be validated and calculated by your backend server.'
                   : 'Inactive: Using client-side built-in Bulls & Cows engine.'}
@@ -196,14 +195,14 @@ app.listen(5000, () => console.log('Server on port 5000'));`;
               type="checkbox"
               checked={enabled}
               onChange={(e) => setEnabled(e.target.checked)}
-              className="w-5 h-5 accent-emerald-500 rounded cursor-pointer"
+              className="w-5 h-5 accent-[#7047EB] rounded cursor-pointer"
             />
           </label>
 
           {enabled && (
-            <div className="mt-4 space-y-3 pt-3 border-t border-slate-800/80">
+            <div className="mt-4 space-y-3 pt-3 border-t border-[#E7DFFF]">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-[#30264A] mb-1">
                   Guess API Endpoint URL:
                 </label>
                 <div className="flex gap-2">
@@ -212,15 +211,15 @@ app.listen(5000, () => console.log('Server on port 5000'));`;
                     value={endpointUrl}
                     onChange={(e) => setEndpointUrl(e.target.value)}
                     placeholder="http://localhost:5000/api/guess"
-                    className="flex-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-emerald-500"
+                    className="flex-1 px-3 py-2 rounded-xl bg-white border-2 border-[#E7DFFF] text-xs font-mono text-[#30264A] focus:outline-none focus:border-[#7047EB]"
                   />
                   <button
                     onClick={handleTestConnection}
                     disabled={testStatus === 'testing'}
-                    className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="px-3.5 py-2 text-xs font-bold rounded-xl bg-[#E8F9F8] hover:bg-[#D4F3F1] text-[#20ABA5] border-2 border-[#28C7C0]/40 flex items-center gap-1.5 transition-all shadow-xs disabled:opacity-50"
                   >
                     {testStatus === 'testing' ? (
-                      <RefreshCw className="h-3.5 w-3.5 animate-spin text-emerald-400" />
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#20ABA5]" />
                     ) : (
                       <Server className="h-3.5 w-3.5" />
                     )}
@@ -231,22 +230,22 @@ app.listen(5000, () => console.log('Server on port 5000'));`;
 
               {testStatus !== 'idle' && (
                 <div
-                  className={`p-2.5 rounded-lg text-xs flex items-start gap-2 border ${
+                  className={`p-3 rounded-xl text-xs flex items-start gap-2 border-2 ${
                     testStatus === 'success'
-                      ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-200'
+                      ? 'bg-[#E8F9F8] border-[#28C7C0] text-[#197571]'
                       : testStatus === 'error'
-                      ? 'bg-rose-950/60 border-rose-500/40 text-rose-200'
-                      : 'bg-slate-900 border-slate-700 text-slate-300'
+                      ? 'bg-[#FFEBEB] border-[#FF6B6B] text-[#C93B3B]'
+                      : 'bg-white border-[#E7DFFF] text-[#30264A]'
                   }`}
                 >
                   {testStatus === 'success' ? (
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-[#28C7C0] mt-0.5" />
                   ) : testStatus === 'error' ? (
-                    <AlertCircle className="h-4 w-4 shrink-0 text-rose-400 mt-0.5" />
+                    <AlertCircle className="h-4 w-4 shrink-0 text-[#FF6B6B] mt-0.5" />
                   ) : (
-                    <RefreshCw className="h-4 w-4 shrink-0 text-slate-400 mt-0.5 animate-spin" />
+                    <RefreshCw className="h-4 w-4 shrink-0 text-[#7047EB] mt-0.5 animate-spin" />
                   )}
-                  <span>{testMessage}</span>
+                  <span className="font-semibold">{testMessage}</span>
                 </div>
               )}
             </div>
@@ -254,10 +253,10 @@ app.listen(5000, () => console.log('Server on port 5000'));`;
         </div>
 
         {/* Expected JSON schema specifications */}
-        <div className="mt-4 p-4 rounded-xl bg-slate-950/60 border border-slate-800">
+        <div className="mt-4 p-4 rounded-2xl bg-[#FFF8EC] border-2 border-[#E7DFFF]">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Code className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="text-xs font-extrabold uppercase tracking-wider text-[#746B85] flex items-center gap-1.5">
+              <Code className="h-4 w-4 text-[#7047EB]" />
               API Protocol Specs & Ready Snippets
             </span>
             <div className="flex items-center gap-1">
@@ -265,10 +264,10 @@ app.listen(5000, () => console.log('Server on port 5000'));`;
                 <button
                   key={tab}
                   onClick={() => setActiveSnippetTab(tab)}
-                  className={`px-2 py-0.5 text-[11px] font-mono rounded transition-colors ${
+                  className={`px-2.5 py-1 text-xs font-mono rounded-lg transition-colors font-bold ${
                     activeSnippetTab === tab
-                      ? 'bg-slate-800 text-emerald-300 font-bold'
-                      : 'text-slate-500 hover:text-slate-300'
+                      ? 'bg-[#7047EB] text-white shadow-xs'
+                      : 'text-[#746B85] hover:text-[#30264A] hover:bg-white'
                   }`}
                 >
                   {tab === 'flask' ? 'Flask' : tab === 'fastapi' ? 'FastAPI' : 'Express'}
@@ -278,30 +277,30 @@ app.listen(5000, () => console.log('Server on port 5000'));`;
           </div>
 
           <div className="relative">
-            <pre className="p-3 rounded-lg bg-slate-900 text-emerald-300/90 font-mono text-[11px] overflow-x-auto max-h-40 border border-slate-800">
+            <pre className="p-3.5 rounded-xl bg-white text-[#30264A] font-mono text-[11px] overflow-x-auto max-h-40 border-2 border-[#E7DFFF] shadow-inner">
               {getActiveCode()}
             </pre>
             <button
               onClick={copyCode}
-              className="absolute top-2 right-2 p-1.5 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs flex items-center gap-1 transition-colors"
+              className="absolute top-2.5 right-2.5 p-1.5 rounded-lg bg-[#F2EEFF] hover:bg-[#E7DFFF] text-[#7047EB] text-xs flex items-center gap-1 transition-colors border border-[#7047EB]/30 font-bold"
               title="Copy snippet"
             >
-              {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+              {copied ? <Check className="h-3.5 w-3.5 text-[#36B56A]" /> : <Copy className="h-3.5 w-3.5" />}
             </button>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-[#E7DFFF]">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-colors"
+            className="px-4 py-2 text-xs font-bold rounded-xl text-[#746B85] hover:text-[#30264A] transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-5 py-2 text-xs font-semibold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 active:scale-95 transition-all shadow-sm"
+            className="px-5 py-2.5 text-xs font-extrabold rounded-xl bg-[#7047EB] text-white hover:bg-[#5D35D9] active:scale-95 transition-all shadow-md shadow-[#7047EB]/25"
           >
             Save Configuration
           </button>
