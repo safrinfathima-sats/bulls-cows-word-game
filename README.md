@@ -6,25 +6,25 @@ The game combines word puzzles with deduction, encouraging players to analyse cl
 This project was developed using custom game logic and an AI-assisted frontend workflow with Google AI Studio.
 
 Features:
-# Secret Word Generation — Generates a hidden word for players to discover.
-# Bulls & Cows Scoring — Evaluates guesses and provides feedback to support logical deduction.
-# Eight-Guess Challenge — Solve the puzzle within a maximum of eight attempts.
-# Attempt History — Review previous guesses and their feedback.
-# Detective Scratchpad — Use deduction tools to keep track of possible letters and clues.
-# Rules and Instructions — Learn the game mechanics before playing.
-# Win and Loss Screens — Receive feedback when a round ends.
-# Stats — Access the game's statistics feature.
-# Share Score — Share your game results.
-# Interactive Interface — Play through a browser-based interface.
+ Secret Word Generation — Generates a hidden word for players to discover.
+ Bulls & Cows Scoring — Evaluates guesses and provides feedback to support logical deduction.
+ Eight-Guess Challenge — Solve the puzzle within a maximum of eight attempts.
+ Attempt History — Review previous guesses and their feedback.
+ Detective Scratchpad — Use deduction tools to keep track of possible letters and clues.
+ Rules and Instructions — Learn the game mechanics before playing.
+ Win and Loss Screens — Receive feedback when a round ends.
+ Stats — Access the game's statistics feature.
+ Share Score — Share your game results.
+ Interactive Interface — Play through a browser-based interface.
 
 How to Play:
 
-# Open the game and read the rules.
-# Start a new game.
-# Enter a valid four-letter word.
-# Submit your guess and review the Bulls and Cows feedback.
-# Use the clues and your attempt history to narrow down the possibilities.
-# Continue guessing until you discover the secret word or use all eight attempts.
+ Open the game and read the rules.
+ Start a new game.
+ Enter a valid four-letter word.
+ Submit your guess and review the Bulls and Cows feedback.
+ Use the clues and your attempt history to narrow down the possibilities.
+ Continue guessing until you discover the secret word or use all eight attempts.
 
 Understanding Bulls and Cows
 
