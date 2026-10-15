@@ -50,7 +50,7 @@ Run Locally
 To run the project locally:
 
 clone this repository:
-
+https://github.com/safrinfathima-sats/bulls-cows-word-game
 
 Navigate to the project folder:
 cd bulls-cows-word-game
